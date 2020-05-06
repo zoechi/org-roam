@@ -35,6 +35,12 @@
 ;; Library Requires
 (require 'cl-lib)
 (require 'org)
+(require 'org-element)
+
+(declare-function org-roam-insert "org-roam")
+(declare-function org-roam--get-roam-buffers "org-roam")
+(declare-function org-roam--list-all-files "org-roam")
+(declare-function org-roam--org-roam-file-p "org-roam")
 
 (cl-defstruct (org-roam-doctor-checker (:copier nil))
   (name 'missing-checker-name)
@@ -67,7 +73,7 @@ AST is the org-element parse tree."
                              file))))))))
 
 (defun org-roam-doctor--check (buffer checkers)
-  "Checks BUFFER for errors.
+  "Check BUFFER for errors.
 CHECKERS is the list of checkers used."
   (with-current-buffer buffer
     (save-excursion
