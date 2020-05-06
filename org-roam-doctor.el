@@ -138,7 +138,8 @@ CHECKERS is the list of checkers used."
 
 (defun org-roam-doctor--resolve (msg checker)
   "Resolve an error.
-MSG is the error that was found, which is displayed in a help buffer."
+MSG is the error that was found, which is displayed in a help buffer.
+CHECKER is a org-roam-doctor checker instance."
   (let ((actions (org-roam-doctor-checker-actions checker))
         c)
     (push '("e" . ("Edit" . recursive-edit)) actions)
