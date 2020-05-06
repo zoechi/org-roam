@@ -28,12 +28,13 @@
 
 ;;; Commentary:
 ;;
-;; This library provides utilities for ensuring that Org-roam files are kept in
-;; a pristine state.
+;; This library provides `org-roam-doctor', a utility for diagnosing and fixing
+;; Org-roam files.
 ;;
 ;;; Code:
 ;; Library Requires
 (require 'cl-lib)
+(require 'org)
 
 (cl-defstruct (org-roam-doctor-checker (:copier nil))
   (name 'missing-checker-name)
@@ -50,6 +51,8 @@
                ("R" . ("Replace link (keep label)" . org-roam-doctor--replace-link-keep-label))))))
 
 (defun org-roam-doctor-broken-links (ast)
+  "Checker for detecting broken links.
+AST is the org-element parse tree."
   (org-element-map ast 'link
     (lambda (l)
       (when (equal "file" (org-element-property :type l))
@@ -130,7 +133,8 @@ CHECKERS is the list of checkers used."
 (defun org-roam-doctor--resolve (msg checker)
   "Resolve an error.
 MSG is the error that was found, which is displayed in a help buffer."
-  (let ((actions (org-roam-doctor-checker-actions checker)))
+  (let ((actions (org-roam-doctor-checker-actions checker))
+        c)
     (push '("e" . ("Edit" . recursive-edit)) actions)
     (with-output-to-temp-buffer "*Org-roam-doctor Help*"
       (mapc #'princ
@@ -161,7 +165,7 @@ If THIS-BUFFER, run the check only for the current buffer."
     (if (not this-buffer)
         (setq files (org-roam--list-all-files))
       (unless (org-roam--org-roam-file-p)
-        (user-error "Not in an org-roam file."))
+        (user-error "Not in an org-roam file"))
       (setq files (list (buffer-file-name))))
     (dolist (f files)
       (let ((buf (find-file-noselect f)))
