@@ -105,6 +105,7 @@ CHECKERS is the list of checkers used."
             (switch-to-buffer buffer)
             (goto-char m)
             (org-reveal)
+            (undo-boundary)
             (org-roam-doctor--resolve msg checker)
             (set-marker m nil)))
         errors))))
