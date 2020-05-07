@@ -52,6 +52,7 @@
 (require 'org-roam-graph)
 (require 'org-roam-completion)
 (require 'org-roam-dailies)
+(require 'org-roam-doctor)
 
 ;; To detect cite: links
 (require 'org-ref nil t)

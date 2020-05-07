@@ -172,6 +172,7 @@ CHECKER is a org-roam-doctor checker instance."
         (delete-window (get-buffer-window "*Org-roam-doctor Help*"))
         (kill-buffer "*Org-roam-doctor Help*")))))
 
+;;;###autoload
 (defun org-roam-doctor (&optional this-buffer)
   "Perform a check on Org-roam files to ensure cleanliness.
 If THIS-BUFFER, run the check only for the current buffer."
