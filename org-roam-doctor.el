@@ -150,10 +150,9 @@ CHECKERS is the list of checkers used."
 MSG is the error that was found, which is displayed in a help buffer.
 CHECKER is a org-roam-doctor checker instance."
   (let ((actions (org-roam-doctor-checker-actions checker))
-        ((help-buf-name "*Org-roam-doctor Help*"))
         c)
     (push '("e" . ("Edit" . recursive-edit)) actions)
-    (with-output-to-temp-buffer help-buf-name
+    (with-output-to-temp-buffer "*Org-roam-doctor Help*"
       (mapc #'princ
             (list "Error message:\n   " msg "\n\n"))
       (dolist (action actions)
@@ -161,7 +160,7 @@ CHECKER is a org-roam-doctor checker instance."
                        (car action)
                        (cadr action)))))
     (shrink-window-if-larger-than-buffer
-     (get-buffer-window help-buf-name))
+     (get-buffer-window "*Org-roam-doctor Help*"))
     (message "Press key for command:")
     (cl-loop
      do (setq c (char-to-string (read-char-exclusive)))
@@ -169,9 +168,9 @@ CHECKER is a org-roam-doctor checker instance."
      do (message "Please enter a valid key for command:"))
     (unwind-protect
         (funcall (cddr (assoc c actions)))
-      (when (get-buffer-window help-buf-name)
-        (delete-window (get-buffer-window help-buf-name))
-        (kill-buffer help-buf-name)))))
+      (when (get-buffer-window "*Org-roam-doctor Help*")
+        (delete-window (get-buffer-window "*Org-roam-doctor Help*"))
+        (kill-buffer "*Org-roam-doctor Help*")))))
 
 (defun org-roam-doctor (&optional this-buffer)
   "Perform a check on Org-roam files to ensure cleanliness.
