@@ -158,7 +158,8 @@ CHECKER is a org-roam-doctor checker instance."
       (dolist (action actions)
         (princ (format "[%s]: %s\n"
                        (car action)
-                       (cadr action)))))
+                       (cadr action))))
+      (princ "\n\n"))
     (shrink-window-if-larger-than-buffer
      (get-buffer-window "*Org-roam-doctor Help*"))
     (message "Press key for command:")
