@@ -29,7 +29,16 @@
 ;;; Commentary:
 ;;
 ;; This library provides `org-roam-doctor', a utility for diagnosing and fixing
-;; Org-roam files.
+;; Org-roam files. Running `org-roam-doctor' launches a list of checks defined
+;; by `org-roam-doctor--checkers'. Every checker is an instance of
+;; `org-roam-doctor-checker'.
+;;
+;; Each checker is given the Org parse tree (AST), and is expected to return a
+;; list of errors. The checker can also provide "actions" for auto-fixing errors
+;; (see `org-roam-doctor--remove-link' for an example).
+;;
+;; The UX experience is inspired by both org-lint and checkdoc, and their code
+;; is heavily referenced.
 ;;
 ;;; Code:
 ;; Library Requires
@@ -141,17 +150,18 @@ CHECKERS is the list of checkers used."
 MSG is the error that was found, which is displayed in a help buffer.
 CHECKER is a org-roam-doctor checker instance."
   (let ((actions (org-roam-doctor-checker-actions checker))
+        ((help-buf-name "*Org-roam-doctor Help*"))
         c)
     (push '("e" . ("Edit" . recursive-edit)) actions)
-    (with-output-to-temp-buffer "*Org-roam-doctor Help*"
+    (with-output-to-temp-buffer help-buf-name
       (mapc #'princ
             (list "Error message:\n   " msg "\n\n"))
       (dolist (action actions)
-        (princ (format "[%s]: %s\t"
+        (princ (format "[%s]: %s\n"
                        (car action)
                        (cadr action)))))
     (shrink-window-if-larger-than-buffer
-     (get-buffer-window "*Org-roam-doctor Help*"))
+     (get-buffer-window help-buf-name))
     (message "Press key for command:")
     (cl-loop
      do (setq c (char-to-string (read-char-exclusive)))
@@ -159,12 +169,12 @@ CHECKER is a org-roam-doctor checker instance."
      do (message "Please enter a valid key for command:"))
     (unwind-protect
         (funcall (cddr (assoc c actions)))
-      (when (get-buffer-window "*Org-roam-doctor Help*")
-        (delete-window (get-buffer-window "*Org-roam-doctor Help*"))
-        (kill-buffer "*Org-roam-doctor Help*")))))
+      (when (get-buffer-window help-buf-name)
+        (delete-window (get-buffer-window help-buf-name))
+        (kill-buffer help-buf-name)))))
 
 (defun org-roam-doctor (&optional this-buffer)
-  "Performs a check on Org-roam files to ensure cleanliness.
+  "Perform a check on Org-roam files to ensure cleanliness.
 If THIS-BUFFER, run the check only for the current buffer."
   (interactive "P")
   (let ((existing-buffers (org-roam--get-roam-buffers))
