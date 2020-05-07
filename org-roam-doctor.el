@@ -181,12 +181,13 @@ CHECKER is a org-roam-doctor checker instance."
     (shrink-window-if-larger-than-buffer
      (get-buffer-window "*Org-roam-doctor Help*"))
     (message "Press key for command:")
-    (cl-loop
-     do (setq c (char-to-string (read-char-exclusive)))
-     until (assoc c actions)
-     do (message "Please enter a valid key for command:"))
     (unwind-protect
-        (funcall (cddr (assoc c actions)))
+        (progn
+          (cl-loop
+           do (setq c (char-to-string (read-char-exclusive)))
+           until (assoc c actions)
+           do (message "Please enter a valid key for command:"))
+          (funcall (cddr (assoc c actions))))
       (when (get-buffer-window "*Org-roam-doctor Help*")
         (delete-window (get-buffer-window "*Org-roam-doctor Help*"))
         (kill-buffer "*Org-roam-doctor Help*")))))
@@ -203,13 +204,14 @@ If THIS-BUFFER, run the check only for the current buffer."
       (unless (org-roam--org-roam-file-p)
         (user-error "Not in an org-roam file"))
       (setq files (list (buffer-file-name))))
-    (dolist (f files)
-      (let ((buf (find-file-noselect f)))
-        (with-current-buffer buf
-          (org-roam-doctor--check buf org-roam-doctor--checkers))
-        (unless (memq buf existing-buffers)
-          (save-buffer buf)
-          (kill-buffer buf)))))
+    (save-window-excursion
+      (dolist (f files)
+        (let ((buf (find-file-noselect f)))
+          (with-current-buffer buf
+            (org-roam-doctor--check buf org-roam-doctor--checkers))
+          (unless (memq buf existing-buffers)
+            (save-buffer buf)
+            (kill-buffer buf))))))
   (message "Linting completed."))
 
 (provide 'org-roam-doctor)
