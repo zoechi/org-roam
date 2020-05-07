@@ -116,6 +116,10 @@ CHECKERS is the list of checkers used."
   (message "When you're done editing press C-M-c to continue.")
   (recursive-edit))
 
+(defun org-roam-doctor--skip ()
+  "Skip the current error."
+  (message "Skipping..."))
+
 (defun org-roam-doctor--replace-link ()
   "Replace the current link with a new link."
   (unless (org-in-regexp org-link-bracket-re 1)
@@ -152,7 +156,8 @@ MSG is the error that was found, which is displayed in a help buffer.
 CHECKER is a org-roam-doctor checker instance."
   (let ((actions (org-roam-doctor-checker-actions checker))
         c)
-    (push '("e" . ("Edit" . recursive-edit)) actions)
+    (push '("e" . ("Edit" . org-roam-doctor--recursive-edit)) actions)
+    (push '("s" . ("Skip" . org-roam-doctor--skip)) actions)
     (with-output-to-temp-buffer "*Org-roam-doctor Help*"
       (mapc #'princ
             (list "Error message:\n   " msg "\n\n"))
